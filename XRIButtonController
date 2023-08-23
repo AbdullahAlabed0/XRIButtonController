@@ -1,0 +1,90 @@
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.InputSystem;
+
+public class XRIButtonController : MonoBehaviour
+{
+    public InputActionReference buttonPrimaryAction;
+    public InputActionReference buttonSecondaryAction;
+    public bool isPrimaryButtonPressed;
+    public bool isSecondaryButtonPressed;
+
+    [HideInInspector]
+    public UnityEvent OnPrimaryButtonPresedEvent;
+    [HideInInspector] 
+    public UnityEvent OnSecondaryButtonPresedEvent;
+    //create public instance
+    public static XRIButtonController inst;
+    private void Awake()
+    {
+        if (inst == null)
+        {
+            inst = this;
+        }
+    }
+
+    #region subscripe to methods and callbacks
+    private void OnEnable()
+    {
+        buttonPrimaryAction.action.Enable();
+        buttonPrimaryAction.action.performed += ctx => OnButtonAPressed(ctx);
+        buttonPrimaryAction.action.canceled += ctx => OnButtonACanceled(ctx);
+        buttonPrimaryAction.action.started += ctx => OnButtonAStarted(ctx);
+
+        buttonSecondaryAction.action.Enable();
+        buttonSecondaryAction.action.performed += ctx => OnButtonBPressed(ctx);
+        buttonSecondaryAction.action.canceled += ctx => OnButtonBCanceled(ctx);
+        buttonSecondaryAction.action.started += ctx => OnButtonBStarted(ctx);
+    }
+    private void OnDisable()
+    {
+        buttonPrimaryAction.action.Disable();
+        buttonPrimaryAction.action.performed -= ctx => OnButtonAPressed(ctx);
+        buttonPrimaryAction.action.canceled -= ctx => OnButtonACanceled(ctx);
+        buttonPrimaryAction.action.started -= ctx => OnButtonAStarted(ctx);
+
+
+        buttonSecondaryAction.action.Disable();
+        buttonSecondaryAction.action.performed -= ctx => OnButtonBPressed(ctx);
+        buttonSecondaryAction.action.canceled -= ctx => OnButtonBCanceled(ctx);
+        buttonSecondaryAction.action.started -= ctx => OnButtonBStarted(ctx);
+    }
+    #endregion
+
+    #region callbacks
+    //Callbacks
+    private void OnButtonAStarted(InputAction.CallbackContext context)
+    {
+        Debug.Log("button action -> OnButtonAStarted Button A." );
+        isPrimaryButtonPressed = true;
+    }
+    private void OnButtonBStarted(InputAction.CallbackContext context)
+    {
+        Debug.Log("button action -> OnButtonBStarted Button B ." );
+        isSecondaryButtonPressed = true;
+    }
+    private void OnButtonAPressed(InputAction.CallbackContext context)
+    {
+        Debug.Log("button action -> OnButtonAPressed Button A pressed." );
+        isPrimaryButtonPressed = true;
+        OnPrimaryButtonPresedEvent.Invoke();
+    }
+    private void OnButtonBPressed(InputAction.CallbackContext context)
+    {
+        Debug.Log("button action -> OnButtonBPressed Button B pressed." );
+        isSecondaryButtonPressed = true;
+        OnSecondaryButtonPresedEvent.Invoke();
+    }
+    private void OnButtonACanceled(InputAction.CallbackContext context)
+    {
+        Debug.Log("button action -> OnButtonACanceled Button A Canceled." );
+        isPrimaryButtonPressed = false;
+    }
+
+    private void OnButtonBCanceled(InputAction.CallbackContext context)
+    {
+        Debug.Log("button action -> OnButtonBCanceled Button B Canceled." );
+        isSecondaryButtonPressed = false;
+    }
+    #endregion
+}
